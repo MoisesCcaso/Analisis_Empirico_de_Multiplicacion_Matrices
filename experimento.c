@@ -4,7 +4,7 @@
 #include <string.h>
 #include <time.h>
 
-// termina el programa si un malloc falla
+//termina el programa si un malloc falla
 #define MALLOC_CHECK(ptr) do { if (!(ptr)) { fprintf(stderr, "malloc failed\n"); exit(1); } } while(0)
 
 //contabilizar tiempo de ejecución 
@@ -12,6 +12,13 @@ static long long elapsedNanoseconds(struct timespec start, struct timespec end) 
   long long seconds = (long long)(end.tv_sec - start.tv_sec);
   long long nanoseconds = (long long)(end.tv_nsec - start.tv_nsec);
   return seconds * 1000000000LL + nanoseconds;
+}
+
+//generar matrices con valores aleatorios
+static void generateRandomArray(double arr[], int n, double maxValue) {
+  for(int i = 0; i < n * n; i++) {
+    arr[i] = ((double)rand() / RAND_MAX) * maxValue;
+  }
 }
 
 //multiplicación estándar O(n^3)
@@ -126,44 +133,9 @@ static void print(double* matrix, int n){
 }
  
 int main(void){
- 
-  int n = 2;
-
-  double* matrix_A = malloc(n*n*sizeof(double)); MALLOC_CHECK(matrix_A);
-  double* matrix_B = malloc(n*n*sizeof(double)); MALLOC_CHECK(matrix_B);
-  double* matrix_C = malloc(n*n*sizeof(double)); MALLOC_CHECK(matrix_C);
-  double* matrix_D = malloc(n*n*sizeof(double)); MALLOC_CHECK(matrix_D);
- 
-  for(int i = 0; i < n; i++){
-    for(int j = 0; j < n; j++){
-      matrix_A[i*n + j] = (i+1)*(j+2);
-      matrix_B[i*n + j] = (i+j);
-    }
-  }
-
-  printf("\nMatriz A:\n");
-  print(matrix_A, n);
- 
-  printf("\nMatriz B:\n");
-  print(matrix_B, n);
- 
-  printf("\n*** Multiplicación Estándar ***\n");
-  standard_multiplication(n, matrix_A, matrix_B, matrix_C);
-
-  printf("\nMatriz C = A*B:\n");
-  print(matrix_C, n);
- 
-
-  printf("\n*** Multiplicación por Strassen ***\n");
-  strassen_multiplication(n, matrix_A, matrix_B, matrix_D);
-
-  printf("\nMatriz D = A*B:\n");
-  print(matrix_D, n);
-
-  free(matrix_A);
-  free(matrix_B);
-  free(matrix_C);
-  free(matrix_D);
+  
+  //semilla fija para replicar experimentos
+  srand(12345);
 
   return 0;
 }
