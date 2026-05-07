@@ -1,14 +1,19 @@
-CC = gcc
-CFLAGS = -O2 -Wall
+CC=gcc
+CFLAGS=-O2 -std=c11 -Wall -Wextra -pedantic
 
-TARGET = experimento
-SRC = experimento.c
+TARGET=experimento
+OUTPUT=resultados.dat
 
-all:
-	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
+all: run plot
 
-run: all
-	./$(TARGET)
+$(TARGET): experimento.c
+	$(CC) $(CFLAGS) experimento.c -o $(TARGET)
+
+run: $(TARGET)
+	./$(TARGET) > $(OUTPUT)
+
+plot:
+	gnuplot plot.gp
 
 clean:
-	rm -f $(TARGET)
+	rm -f $(TARGET) $(OUTPUT) grafico.png
