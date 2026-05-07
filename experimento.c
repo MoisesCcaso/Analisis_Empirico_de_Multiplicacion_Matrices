@@ -21,6 +21,11 @@ static void generateRandomArray(double arr[], int n, double maxValue) {
   }
 }
 
+//copiar contenido de una matriz
+static void copyMatrix(double* source, double* destination, int n) {
+  memcpy(destination, source, n * n * sizeof(double));
+}
+
 //multiplicación estándar O(n^3)
 static void standard_multiplication(int n, double* A, double* B, double* C){
   for(int i = 0; i < n; i++){ //filas
@@ -135,7 +140,7 @@ static void print(double* matrix, int n){
 int main(void){
   
   //semilla fija para replicar experimentos
-  srand(12345);
+  srand(42);
 
   return 0;
 }
