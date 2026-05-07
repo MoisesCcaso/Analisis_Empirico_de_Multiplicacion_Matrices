@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#define MAX_VALUE 1000.0
 
 //termina el programa si un malloc falla
 #define MALLOC_CHECK(ptr) do { if (!(ptr)) { fprintf(stderr, "malloc failed\n"); exit(1); } } while(0)
@@ -15,15 +16,10 @@ static long long elapsedNanoseconds(struct timespec start, struct timespec end) 
 }
 
 //generar matrices con valores aleatorios
-static void generateRandomArray(double arr[], int n, double maxValue) {
+static void generateRandomArray(double arr[], int n) {
   for(int i = 0; i < n * n; i++) {
-    arr[i] = ((double)rand() / RAND_MAX) * maxValue;
+    arr[i] = ((double)rand() / RAND_MAX) * MAX_VALUE;
   }
-}
-
-//copiar contenido de una matriz
-static void copyMatrix(double* source, double* destination, int n) {
-  memcpy(destination, source, n * n * sizeof(double));
 }
 
 //multiplicación estándar O(n^3)
@@ -127,20 +123,53 @@ static void strassen_multiplication(int n, double* A, double* B, double* C)
     free(T1); free(T2);
 }
 
-// imprimir elementos de una matriz
-static void print(double* matrix, int n){
-  for(int i = 0; i < n; i++){
-    for(int j = 0;j < n; j++){
-      printf("%.2f ", matrix[i*n + j]);
-    }
-    printf("\n");
-  }
+static double measureStrassen(int n , double* A, double* B, double* C) {
+  struct timespec start;
+  struct timespec end;
+
+  clock_gettime(CLOCK_MONOTONIC, &start);
+  strassen_multiplication(n, A, B, C);
+  clock_gettime(CLOCK_MONOTONIC, &end);
+
+  return (double)elapsedNanoseconds(start, end) / 1000.0;
 }
- 
+
+static double measureStandard(int n , double* A, double* B, double* C) {
+  struct timespec start;
+  struct timespec end;
+
+  clock_gettime(CLOCK_MONOTONIC, &start);
+  standard_multiplication(n, A, B, C);
+  clock_gettime(CLOCK_MONOTONIC, &end);
+
+  return (double)elapsedNanoseconds(start, end) / 1000.0;
+}
+
 int main(void){
   
   //semilla fija para replicar experimentos
   srand(42);
 
-  return 0;
+  printf("# n standar_multiplication_us vs  strassen_multiplication_us\n");
+
+  for(int n = 2; n <= 1024; n *= 2) {
+    double* matrixA = malloc(n * n *  sizeof(double)); MALLOC_CHECK(matrixA);
+    double* matrixB = malloc(n * n *  sizeof(double)); MALLOC_CHECK(matrixB);
+    double* matrixC = malloc(n * n *  sizeof(double)); MALLOC_CHECK(matrixC);
+    double* matrixC_2 = malloc(n * n *  sizeof(double)); MALLOC_CHECK(matrixC_2);
+
+    generateRandomArray(matrixA, n);
+    generateRandomArray(matrixB, n);
+
+    double standardTime = measureStandard(n, matrixA, matrixB, matrixC);
+    double strassenTime = measureStrassen(n, matrixA, matrixB, matrixC_2);
+
+    printf("%d %.3f %.3f\n", n, standardTime, strassenTime);
+    free(matrixA);
+    free(matrixB);
+    free(matrixC);
+    free(matrixC_2);
+  }
+
+  return EXIT_SUCCESS;
 }
