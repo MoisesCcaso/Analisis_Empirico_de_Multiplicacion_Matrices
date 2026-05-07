@@ -7,6 +7,13 @@
 // termina el programa si un malloc falla
 #define MALLOC_CHECK(ptr) do { if (!(ptr)) { fprintf(stderr, "malloc failed\n"); exit(1); } } while(0)
 
+//contabilizar tiempo de ejecución 
+static long long elapsedNanoseconds(struct timespec start, struct timespec end) {
+  long long seconds = (long long)(end.tv_sec - start.tv_sec);
+  long long nanoseconds = (long long)(end.tv_nsec - start.tv_nsec);
+  return seconds * 1000000000LL + nanoseconds;
+}
+
 //multiplicación estándar O(n^3)
 static void standard_multiplication(int n, double* A, double* B, double* C){
   for(int i = 0; i < n; i++){ //filas
