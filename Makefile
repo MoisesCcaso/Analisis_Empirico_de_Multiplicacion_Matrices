@@ -1,11 +1,11 @@
 CC = gcc
-CFLAGS = -02 -Wall
+CFLAGS = -O2 -Wall
 
 TARGET = experimento
 SRC = experimento.c
 
 all:
-	$(CC) $(CLFAGS) $(SRC) -o $(TARGET)
+	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
 
 run: all
 	./$(TARGET)
