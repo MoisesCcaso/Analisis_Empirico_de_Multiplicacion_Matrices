@@ -47,8 +47,13 @@ static void sub(int n, double* A, double* B, double* C) {
 //multiplicación de Strassen O(n^2.807) 
 static void strassen_multiplication(int n, double* A, double* B, double* C)
 {
-    if (n == 1){ 
-        C[0] = A[0]*B[0];
+    /*Strassen puro no puede superar a la multiplicacion standard con n <= 1024 sin que se demore horas y horas
+    procesando los datos y además teniendo un caso base tan pequeño,
+    se debe ajustar su caso base a uno más alto aprovechando el algoritmo de multiplicacion standard y 
+    forzando así el cruce entre estas gráficas*/
+
+    if (n <= 128){ 
+        standard_multiplication(n, A, B, C);
         return;
     }
  
