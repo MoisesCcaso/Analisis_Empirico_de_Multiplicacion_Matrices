@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 #define MAX_VALUE 1000.0
+#define REPS 30
 
 //termina el programa si un malloc falla
 #define MALLOC_CHECK(ptr) do { if (!(ptr)) { fprintf(stderr, "malloc failed\n"); exit(1); } } while(0)
@@ -46,8 +47,8 @@ static void sub(int n, double* A, double* B, double* C) {
 //multiplicación de Strassen O(n^2.807) 
 static void strassen_multiplication(int n, double* A, double* B, double* C)
 {
-    if (n == 1) {
-        C[0] = A[0] * B[0];
+    if (n == 1){ 
+        C[0] = A[0]*B[0];
         return;
     }
  
@@ -152,6 +153,7 @@ int main(void){
 
   printf("# n standar_multiplication_us vs  strassen_multiplication_us\n");
 
+  //casos típicos con n = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024}
   for(int n = 2; n <= 1024; n *= 2) {
     double* matrixA = malloc(n * n *  sizeof(double)); MALLOC_CHECK(matrixA);
     double* matrixB = malloc(n * n *  sizeof(double)); MALLOC_CHECK(matrixB);
@@ -160,11 +162,16 @@ int main(void){
 
     generateRandomArray(matrixA, n);
     generateRandomArray(matrixB, n);
+    
+    double standardTotal = 0.0;
+    double strassenTotal = 0.0;
 
-    double standardTime = measureStandard(n, matrixA, matrixB, matrixC);
-    double strassenTime = measureStrassen(n, matrixA, matrixB, matrixC_2);
+    for(int r = 0; r < REPS; r++){
+      standardTotal += measureStandard(n, matrixA, matrixB, matrixC);
+      strassenTotal += measureStrassen(n, matrixA, matrixB, matrixC_2);
+    }
 
-    printf("%d %.3f %.3f\n", n, standardTime, strassenTime);
+    printf("%d %.3f %.3f\n", n, standardTotal/REPS, strassenTotal/REPS);
     free(matrixA);
     free(matrixB);
     free(matrixC);
