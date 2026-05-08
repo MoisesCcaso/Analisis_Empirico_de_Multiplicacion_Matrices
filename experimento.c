@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#define SIZE 18
 #define MAX_VALUE 1000.0
 #define REPS 30
 
@@ -47,12 +48,8 @@ static void sub(int n, double* A, double* B, double* C) {
 //multiplicación de Strassen O(n^2.807) 
 static void strassen_multiplication(int n, double* A, double* B, double* C)
 {
-    /*Strassen puro no puede superar a la multiplicacion standard con n <= 1024 sin que se demore horas y horas
-    procesando los datos y además teniendo un caso base tan pequeño,
-    se debe ajustar su caso base a uno más alto aprovechando el algoritmo de multiplicacion standard y 
-    forzando así el cruce entre estas gráficas*/
-
-    if (n <= 128){ 
+    //Ajustamos ahora el caso base al 32 deseado
+    if (n <= 32){ 
         standard_multiplication(n, A, B, C);
         return;
     }
@@ -157,26 +154,29 @@ int main(void){
   srand(42);
 
   printf("# n standar_multiplication_us vs  strassen_multiplication_us\n");
+  
+  //Ahora usamos un arreglo ajustado de valores para n que cumplan con el caso base n <= 32 de Strassen
+  int n[SIZE] = {4, 8, 16, 32, 64, 100, 128, 200, 256, 320, 400, 456, 512, 640, 736, 800, 960, 1024 };
 
-  //casos típicos con n = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024}
-  for(int n = 2; n <= 1024; n *= 2) {
-    double* matrixA = malloc(n * n *  sizeof(double)); MALLOC_CHECK(matrixA);
-    double* matrixB = malloc(n * n *  sizeof(double)); MALLOC_CHECK(matrixB);
-    double* matrixC = malloc(n * n *  sizeof(double)); MALLOC_CHECK(matrixC);
-    double* matrixC_2 = malloc(n * n *  sizeof(double)); MALLOC_CHECK(matrixC_2);
+  for(int i = 0; i < SIZE; i++) {
+    int aux = n[i];
+    double* matrixA = malloc(aux * aux *  sizeof(double)); MALLOC_CHECK(matrixA);
+    double* matrixB = malloc(aux * aux *  sizeof(double)); MALLOC_CHECK(matrixB);
+    double* matrixC = malloc(aux * aux *  sizeof(double)); MALLOC_CHECK(matrixC);
+    double* matrixC_2 = malloc(aux * aux *  sizeof(double)); MALLOC_CHECK(matrixC_2);
 
-    generateRandomArray(matrixA, n);
-    generateRandomArray(matrixB, n);
+    generateRandomArray(matrixA, aux);
+    generateRandomArray(matrixB, aux);
     
     double standardTotal = 0.0;
     double strassenTotal = 0.0;
 
     for(int r = 0; r < REPS; r++){
-      standardTotal += measureStandard(n, matrixA, matrixB, matrixC);
-      strassenTotal += measureStrassen(n, matrixA, matrixB, matrixC_2);
+      standardTotal += measureStandard(aux, matrixA, matrixB, matrixC);
+      strassenTotal += measureStrassen(aux, matrixA, matrixB, matrixC_2);
     }
 
-    printf("%d %.3f %.3f\n", n, standardTotal/REPS, strassenTotal/REPS);
+    printf("%d %.3f %.3f\n", aux, standardTotal/REPS, strassenTotal/REPS);
     free(matrixA);
     free(matrixB);
     free(matrixC);
